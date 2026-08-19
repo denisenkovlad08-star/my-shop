@@ -221,76 +221,49 @@
   </form>
 </div>
 
+<!-- Твой HTML-код страницы заканчивается выше -->
+
 <script>
   const PROJECT_ID = "YOUR_PROJECT_ID"; 
-  const STOCK_WEBHOOK_URL = "https://hook.eu1.make.com/i98syjddjoqiuwxo5b5p24gmbav5nxwp"; 
+  const STOCK_WEBHOOK_URL = ""; // Ссылка на Make (если вебхук не настроен, оставь пустые кавычки)
 
   let totalStock = 100; 
   let maxAllowed = Math.floor(totalStock * 0.8);
 
-async function fetchStock() {
-  const badge = document.getElementById('stockBadge');
-  
-  if (STOCK_WEBHOOK_URL && STOCK_WEBHOOK_URL.startsWith("http")) {
-    try {
-      // Добавляем таймаут 3 секунды, чтобы сайт не вис, если Make недоступен
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+  async function fetchStock() {
+    const badge = document.getElementById('stockBadge');
 
-      const response = await fetch(`${STOCK_WEBHOOK_URL}?t=${Date.now()}`, {
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
+    if (STOCK_WEBHOOK_URL && STOCK_WEBHOOK_URL.startsWith("http")) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.stock !== undefined) {
-          const parsedStock = parseInt(data.stock, 10);
-          if (!isNaN(parsedStock)) {
-            totalStock = parsedStock;
+        const response = await fetch(`${STOCK_WEBHOOK_URL}?t=${Date.now()}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.stock !== undefined) {
+            const parsedStock = parseInt(data.stock, 10);
+            if (!isNaN(parsedStock)) {
+              totalStock = parsedStock;
+            }
           }
         }
+      } catch (e) {
+        console.warn("Ошибка получения остатка, используется значение по умолчанию:", e);
       }
-    } catch (e) {
-      console.warn("Make недоступен, используется значение по умолчанию:", e);
     }
-  }
 
-  // Расчет и моментальный вывод на страницу
-  maxAllowed = Math.floor(totalStock * 0.8);
-  if (badge) {
-    badge.innerHTML = `
-      <svg class="icon" viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm-1 5h-2v-2h2v2zm0-8H4c-.55 0-1 .45-1 1v2h18v-2c0-.55-.45-1-1-1zM4 3h16c.55 0 1 .45 1 1v2H3V4c0-.55.45-1 1-1z"/></svg>
-      В наличии: ${totalStock} шт. (Макс. заказ: ${maxAllowed} шт.)
-    `;
-  }
-  calculatePrice();
-}
-  
-  maxAllowed = Math.floor(totalStock * 0.8);
-  const badge = document.getElementById('stockBadge');
-  if (badge) {
-    badge.innerHTML = `
-      <svg class="icon" viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm-1 5h-2v-2h2v2zm0-8H4c-.55 0-1 .45-1 1v2h18v-2c0-.55-.45-1-1-1zM4 3h16c.55 0 1 .45 1 1v2H3V4c0-.55.45-1 1-1z"/></svg>
-      В наличии: ${totalStock} шт. (Макс. заказ: ${maxAllowed} шт.)
-    `;
-  }
-  calculatePrice();
-}
-  
-  maxAllowed = Math.floor(totalStock * 0.8);
-  document.getElementById('stockBadge').innerHTML = `
-    <svg class="icon" viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm-1 5h-2v-2h2v2zm0-8H4c-.55 0-1 .45-1 1v2h18v-2c0-.55-.45-1-1-1zM4 3h16c.55 0 1 .45 1 1v2H3V4c0-.55.45-1 1-1z"/></svg>
-    В наличии: ${totalStock} шт. (Макс. заказ: ${maxAllowed} шт.)
-  `;
-  calculatePrice();
-}
-    
     maxAllowed = Math.floor(totalStock * 0.8);
-    document.getElementById('stockBadge').innerHTML = `
-      <svg class="icon" viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm-1 5h-2v-2h2v2zm0-8H4c-.55 0-1 .45-1 1v2h18v-2c0-.55-.45-1-1-1zM4 3h16c.55 0 1 .45 1 1v2H3V4c0-.55.45-1 1-1z"/></svg>
-      В наличии: ${totalStock} шт. (Макс. заказ: ${maxAllowed} шт.)
-    `;
+    if (badge) {
+      badge.innerHTML = `
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm-1 5h-2v-2h2v2zm0-8H4c-.55 0-1 .45-1 1v2h18v-2c0-.55-.45-1-1-1zM4 3h16c.55 0 1 .45 1 1v2H3V4c0-.55.45-1 1-1z"/></svg>
+        В наличии: ${totalStock} шт. (Макс. заказ: ${maxAllowed} шт.)
+      `;
+    }
     calculatePrice();
   }
 
@@ -304,34 +277,48 @@ async function fetchStock() {
     const qtyInput = document.getElementById('qty');
     const errorEl = document.getElementById('limitError');
     const btn = document.getElementById('submitBtn');
+    if (!qtyInput) return;
+
     let qty = parseInt(qtyInput.value) || 0;
 
-    if (qty > maxAllowed) {
-      errorEl.innerText = `Нельзя купить больше 80% от остатка (максимум ${maxAllowed} шт.)`;
-      errorEl.style.display = 'block';
-      btn.disabled = true;
-    } else if (qty < 10) {
-      errorEl.innerText = `Минимальный заказ — 10 шт.`;
-      errorEl.style.display = 'block';
-      btn.disabled = true;
-    } else {
-      errorEl.style.display = 'none';
-      btn.disabled = false;
+    if (errorEl && btn) {
+      if (qty > maxAllowed) {
+        errorEl.innerText = `Нельзя купить больше 80% от остатка (максимум ${maxAllowed} шт.)`;
+        errorEl.style.display = 'block';
+        btn.disabled = true;
+      } else if (qty < 10) {
+        errorEl.innerText = `Минимальный заказ — 10 шт.`;
+        errorEl.style.display = 'block';
+        btn.disabled = true;
+      } else {
+        errorEl.style.display = 'none';
+        btn.disabled = false;
+      }
     }
 
-    document.getElementById('tier1').className = (qty >= 10 && qty < 100) ? 'active' : '';
-    document.getElementById('tier2').className = (qty >= 100 && qty < 500) ? 'active' : '';
-    document.getElementById('tier3').className = (qty >= 500) ? 'active' : '';
+    const t1 = document.getElementById('tier1');
+    const t2 = document.getElementById('tier2');
+    const t3 = document.getElementById('tier3');
+    if (t1) t1.className = (qty >= 10 && qty < 100) ? 'active' : '';
+    if (t2) t2.className = (qty >= 100 && qty < 500) ? 'active' : '';
+    if (t3) t3.className = (qty >= 500) ? 'active' : '';
 
     const price = getUnitPrice(qty);
-    document.getElementById('unitPrice').innerText = `Цена: ${price} ₽ за шт.`;
-    document.getElementById('totalSum').innerText = (qty * price) + ' ₽';
+    const unitPriceEl = document.getElementById('unitPrice');
+    const totalSumEl = document.getElementById('totalSum');
+    
+    if (unitPriceEl) unitPriceEl.innerText = `Цена: ${price} ₽ за шт.`;
+    if (totalSumEl) totalSumEl.innerText = (qty * price) + ' ₽';
   }
 
   function handlePay(e) {
     e.preventDefault();
-    const qty = parseInt(document.getElementById('qty').value);
-    const email = document.getElementById('email').value.trim();
+    const qtyInput = document.getElementById('qty');
+    const emailInput = document.getElementById('email');
+    if (!qtyInput || !emailInput) return;
+
+    const qty = parseInt(qtyInput.value);
+    const email = emailInput.value.trim();
 
     if (qty > maxAllowed) {
       alert(`Нельзя заказать больше ${maxAllowed} шт.!`);
@@ -347,8 +334,9 @@ async function fetchStock() {
     window.location.href = payUrl;
   }
 
-  fetchStock();
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchStock();
+  });
 </script>
-
 </body>
 </html>

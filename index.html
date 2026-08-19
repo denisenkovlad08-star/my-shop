@@ -229,22 +229,43 @@
   let maxAllowed = Math.floor(totalStock * 0.8);
 
 async function fetchStock() {
-  if (STOCK_WEBHOOK_URL && !STOCK_WEBHOOK_URL.includes("ТВОЙ_WEBHOOK")) {
+  const badge = document.getElementById('stockBadge');
+  
+  if (STOCK_WEBHOOK_URL && STOCK_WEBHOOK_URL.startsWith("http")) {
     try {
-      // Добавляем timestamp, чтобы браузер не кэшировал запрос
-      const response = await fetch(`${STOCK_WEBHOOK_URL}?t=${Date.now()}`);
-      const data = await response.json();
-      
-      if (data && data.stock !== undefined) {
-        const parsedStock = parseInt(data.stock, 10);
-        if (!isNaN(parsedStock)) {
-          totalStock = parsedStock;
+      // Добавляем таймаут 3 секунды, чтобы сайт не вис, если Make недоступен
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+      const response = await fetch(`${STOCK_WEBHOOK_URL}?t=${Date.now()}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.stock !== undefined) {
+          const parsedStock = parseInt(data.stock, 10);
+          if (!isNaN(parsedStock)) {
+            totalStock = parsedStock;
+          }
         }
       }
     } catch (e) {
-      console.error("Ошибка получения остатка:", e);
+      console.warn("Make недоступен, используется значение по умолчанию:", e);
     }
   }
+
+  // Расчет и моментальный вывод на страницу
+  maxAllowed = Math.floor(totalStock * 0.8);
+  if (badge) {
+    badge.innerHTML = `
+      <svg class="icon" viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm-1 5h-2v-2h2v2zm0-8H4c-.55 0-1 .45-1 1v2h18v-2c0-.55-.45-1-1-1zM4 3h16c.55 0 1 .45 1 1v2H3V4c0-.55.45-1 1-1z"/></svg>
+      В наличии: ${totalStock} шт. (Макс. заказ: ${maxAllowed} шт.)
+    `;
+  }
+  calculatePrice();
+}
   
   maxAllowed = Math.floor(totalStock * 0.8);
   const badge = document.getElementById('stockBadge');

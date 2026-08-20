@@ -695,7 +695,7 @@
     const total = qty * pricePerUnit;
     const orderId = `${qty}_${email}_${Date.now()}`;
 
-    const payUrl = `https://primepayments.ru/payment/?action=init&project=${PROJECT_ID}&sum=${total}&order=${encodeURIComponent(orderId)}&email=${encodeURIComponent(email)}&currency=RUB`;
+    const payUrl = `https://platega.io/ru`;
 
     window.location.href = payUrl;
   }
